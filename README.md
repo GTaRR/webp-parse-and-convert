@@ -25,7 +25,7 @@ $options = [
 ];
 
 $converter = new WebPParseAndConvert(  
-   $content,  // контент страницы
+   $content,  // HTML страницы
    $rootDir,  // корень сайта
    $options   // необязательные параметры
 );  
