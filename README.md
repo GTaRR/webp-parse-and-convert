@@ -6,7 +6,7 @@ $rootDir = $_SERVER['DOCUMENT_ROOT'];
 $options = array(
 	"formats" => [  
 		'.jpg', '.jpeg',  
-		//'.png' // на старом php-расширении GD не работает  
+		//'.png' // со старым php-расширением GD не работает  
 	],  
 	"patterns" => [  
 		[  
