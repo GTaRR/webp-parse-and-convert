@@ -5,7 +5,7 @@
 composer require gtarr/webp-parse-and-convert
 ```
 ## Установка без Composer
-https://php-download.com/package/gtarr/webp-parse-and-convert
+Скачать [отсюда](https://php-download.com/package/gtarr/webp-parse-and-convert) и загрузить папку `vendor` на сайт
 ## Использование
 1. Без параметров
 ```php
