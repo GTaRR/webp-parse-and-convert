@@ -3,7 +3,7 @@
 ## Использование
 ```php
 $rootDir = $_SERVER['DOCUMENT_ROOT'];
-$options = array(
+$options = [
    "formats" => [  
       '.jpg', '.jpeg',  
       //'.png' // со старым php-расширением GD не работает  
@@ -18,7 +18,7 @@ $options = array(
          'exclude' => ["'", "./"]  
       ],  
    ] 
-);
+];
 
 $converter = new WebPParseAndConvert(  
    $content,  // контент страницы
