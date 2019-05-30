@@ -11,11 +11,11 @@ $options = array(
    "patterns" => [  
       [  
          'pattern' => '<img[^>]+src=("[^"]*")[^>]+>',
-         'exclude' => array('"', './')  
+         'exclude' => ['"', './']  
       ],  
       [  
          'pattern' => '/background-image:.+url\(([^"]+)\)/i',
-         'exclude' => array("'", "./")  
+         'exclude' => ["'", "./"]  
       ],  
    ] 
 );
