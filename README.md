@@ -9,6 +9,11 @@ https://php-download.com/package/gtarr/webp-parse-and-convert
 ## Использование
 ```php
 $rootDir = $_SERVER['DOCUMENT_ROOT'];
+
+require $rootDir . '/vendor/autoload.php';
+
+use WebPParseAndConvert\WebPParseAndConvert;
+
 $options = [
    "formats" => [  
       '.jpg', '.jpeg',  
