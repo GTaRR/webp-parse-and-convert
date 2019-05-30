@@ -23,7 +23,7 @@ $options = [
 $converter = new WebPParseAndConvert(  
    $content,  // контент страницы
    $rootDir,  // корень сайта
-// $options   // необязательные параметры
+   $options   // необязательные параметры
 );  
 
 $content = $converter->execute();
