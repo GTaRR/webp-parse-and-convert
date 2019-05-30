@@ -3,7 +3,7 @@
     "description": "",
     "type": "library",
     "license": "GPL-3.0-or-later",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Vladimir Sushilov",
