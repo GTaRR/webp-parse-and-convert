@@ -1,9 +1,11 @@
 # WebPParseAndConvert
 Конвертирование изображений в WebP через парсинг переданного HTML страницы.
-## Установка
+## Установка через Composer
 ```php
 composer require gtarr/webp-parse-and-convert
 ```
+## Установка без Composer
+https://php-download.com/package/gtarr/webp-parse-and-convert
 ## Использование
 ```php
 $rootDir = $_SERVER['DOCUMENT_ROOT'];
