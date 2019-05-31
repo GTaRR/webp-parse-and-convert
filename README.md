@@ -27,11 +27,7 @@ $content = $converter->execute();
 2. C опциями (в примере значения по умолчанию)
 ```php
 $options = [
-   "formats" => [
-         '.jpg', 
-         '.jpeg',
-         '.png' // на старом php расширении GD не работает, по умолчанию png обрабатывается
-   ],
+   "formats" => ['.jpg', '.jpeg', '.png'],
    "patterns" => [
       [
           'pattern' => '<img[^>]+src=("[^"]*")[^>]+>',
