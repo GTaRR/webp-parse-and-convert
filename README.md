@@ -49,7 +49,7 @@ $converter = new WebPParseAndConvert($content, $rootDir, $options);
 'devices' | Array | Список устройств, для которых будут выводиться оригинальные изображения в форматах jpg, jpeg, png
 
 ## Решение проблем
-При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опцию `'formats'` передать только [`'.jpg.'`, `'.jpeg'`]
+При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опцию `'formats'` передать только `['.jpg.', '.jpeg']`
 ## Примеры для CMS
 * [1С-Битрикс](https://github.com/GTaRR/WebPParseAndConvert/wiki/1C-Bitrix)
 * [ModX](https://github.com/GTaRR/WebPParseAndConvert/wiki/ModX)
