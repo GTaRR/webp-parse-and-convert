@@ -74,3 +74,4 @@ $converter = new WebPParseAndConvert(
 При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опции `'formats'` передать только `'.jpg.'` и `'.jpeg'`
 ## Примеры для CMS
 [1С-Битрикс](https://github.com/GTaRR/WebPParseAndConvert/wiki/1C-Bitrix)
+[ModX](https://github.com/GTaRR/WebPParseAndConvert/wiki/ModX)
