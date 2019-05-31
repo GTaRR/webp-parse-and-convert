@@ -20,7 +20,7 @@ $converter = new WebPParseAndConvert($content, $rootDir);
 
 $content = $converter->execute();
 ```
-2. C опциями (в примере значения по умолчанию)
+2. C опциями (в примере представлены значения по умолчанию)
 ```php
 $options = [
    "formats" => ['.jpg', '.jpeg', '.png'],
