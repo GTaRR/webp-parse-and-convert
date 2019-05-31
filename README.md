@@ -7,7 +7,7 @@ composer require gtarr/webp-parse-and-convert
 ## Установка без Composer
 Скачать [отсюда](https://php-download.com/package/gtarr/webp-parse-and-convert) и загрузить папку `vendor` на сайт
 ## Использование
-1. Без параметров
+1. Без доп. опций
 ```php
 $content = '<html>...<img src="">...</html>';
 $rootDir = $_SERVER['DOCUMENT_ROOT'];
