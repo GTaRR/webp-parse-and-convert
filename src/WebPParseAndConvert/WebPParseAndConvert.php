@@ -164,6 +164,6 @@ class WebPParseAndConvert
         if (count($this->images))
             return $this->convertImages($this->content, $this->images);
         else
-            return false;
+            return $this->content;
     }
 }
