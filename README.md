@@ -42,15 +42,7 @@ $options = [
           'exclude' => ["'", "./"]
       ],
    ],
-   "devices" => [
-      'iphone',
-      'ipod',
-      'ipad',
-      'macintosh',
-      'mac os',
-      'Edge',
-      'MSIE'
-   ]
+   "devices" => ['iphone', 'ipod', 'ipad', 'macintosh', 'mac os', 'Edge', 'MSIE']
 ];
 
 $converter = new WebPParseAndConvert(  
