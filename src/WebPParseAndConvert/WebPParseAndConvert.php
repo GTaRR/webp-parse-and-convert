@@ -69,7 +69,7 @@ class WebPParseAndConvert
      * @param   array       $exclude - Исключаемые строки
      * @return  array       $images  - Массив адресов изображений
      */
-    private function parseImgByPatterns($pattern, $content, $exclude = array())
+    private function parseImgByPattern($pattern, $content, $exclude = array())
     {
         $images = array();
         preg_match_all($pattern, $content, $result);
@@ -154,7 +154,7 @@ class WebPParseAndConvert
             foreach ($this->patterns as $pattern) {
                 $this->images = array_merge(
                     $this->images,
-                    $this->parseImgByPatterns($pattern['pattern'], $this->content, $pattern['exclude'])
+                    $this->parseImgByPattern($pattern['pattern'], $this->content, $pattern['exclude'])
                 );
             }
         }
