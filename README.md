@@ -7,7 +7,7 @@ composer require gtarr/webp-parse-and-convert
 ## Установка без Composer
 Скачать [отсюда](https://php-download.com/package/gtarr/webp-parse-and-convert) и загрузить папку `vendor` на сайт
 ## Использование
-1. Без доп. опций
+1. По умолчанию
 ```php
 $content = '<html>...<img src="">...</html>'; // HTML страницы
 $rootDir = $_SERVER['DOCUMENT_ROOT'];         // корень сайта
@@ -20,7 +20,7 @@ $converter = new WebPParseAndConvert($content, $rootDir);
 
 $content = $converter->execute();
 ```
-2. C опциями (в примере представлены значения по умолчанию)
+2. C доп. опциями (в примере представлены значения по умолчанию)
 ```php
 $options = [
    "formats" => ['.jpg', '.jpeg', '.png'],
