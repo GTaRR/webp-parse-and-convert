@@ -26,7 +26,7 @@ $options = [
    "formats" => ['.jpg', '.jpeg', '.png'],
    "patterns" => [
       [
-         'pattern' => '<img[^>]+src=("[^"]*")[^>]+>',
+         'pattern' => '/<img[^>]+src=("[^"]*")[^>]+>/i',
          'exclude' => ['"', './']
       ],
       [
