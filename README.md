@@ -30,12 +30,12 @@ $options = [
    "formats" => ['.jpg', '.jpeg', '.png'],
    "patterns" => [
       [
-          'pattern' => '<img[^>]+src=("[^"]*")[^>]+>',
-          'exclude' => ['"', './']
+         'pattern' => '<img[^>]+src=("[^"]*")[^>]+>',
+         'exclude' => ['"', './']
       ],
       [
-          'pattern' => '/background-image:.+url\(([^"]+)\)/i',
-          'exclude' => ["'", "./"]
+         'pattern' => '/background-image:.+url\(([^"]+)\)/i',
+         'exclude' => ["'", "./"]
       ],
    ],
    "devices" => ['iphone', 'ipod', 'ipad', 'macintosh', 'mac os', 'Edge', 'MSIE']
