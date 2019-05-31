@@ -61,3 +61,4 @@ $converter = new WebPParseAndConvert(
 ## Примеры для CMS
 * [1С-Битрикс](https://github.com/GTaRR/WebPParseAndConvert/wiki/1C-Bitrix)
 * [ModX](https://github.com/GTaRR/WebPParseAndConvert/wiki/ModX)
+* [Без CMS](https://github.com/GTaRR/WebPParseAndConvert/wiki/%D0%91%D0%B5%D0%B7-CMS)
