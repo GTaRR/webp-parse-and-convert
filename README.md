@@ -9,18 +9,14 @@ composer require gtarr/webp-parse-and-convert
 ## Использование
 1. Без доп. опций
 ```php
-$content = '<html>...<img src="">...</html>';
-$rootDir = $_SERVER['DOCUMENT_ROOT'];
+$content = '<html>...<img src="">...</html>'; // HTML страницы
+$rootDir = $_SERVER['DOCUMENT_ROOT'];         // корень сайта
 
 require $rootDir . '/vendor/autoload.php';
 
 use WebPParseAndConvert\WebPParseAndConvert;
 
-$converter = new WebPParseAndConvert(  
-   $content,  // HTML страницы
-   $rootDir,  // корень сайта
-// $options
-);  
+$converter = new WebPParseAndConvert($content, $rootDir);  
 
 $content = $converter->execute();
 ```
@@ -41,11 +37,7 @@ $options = [
    "devices" => ['iphone', 'ipod', 'ipad', 'macintosh', 'mac os', 'Edge', 'MSIE']
 ];
 
-$converter = new WebPParseAndConvert(  
-   $content,
-   $rootDir,
-   $options
-); 
+$converter = new WebPParseAndConvert($content, $rootDir, $options); 
 ```
 ## Опции
 Опция      | Тип | Описание
