@@ -16,7 +16,7 @@ class WebPParseAndConvert
     );
     private $patterns = array(
         array(
-            'pattern' => '<img[^>]+src=("[^"]*")[^>]+>',
+            'pattern' => '/<img[^>]+src=("[^"]*")[^>]+>/i',
             'exclude' => array('"','./')
         ),
         array(
