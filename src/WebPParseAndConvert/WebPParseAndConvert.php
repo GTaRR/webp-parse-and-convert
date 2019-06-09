@@ -41,6 +41,8 @@ class WebPParseAndConvert
         'Edge',
         'MSIE'
     );
+    private $options = false;
+    private $debug = false;
 
     /**
      * @param   string      $content - HTML загружаемой страницы
@@ -59,6 +61,10 @@ class WebPParseAndConvert
             $this->patterns = $options['patterns'];
         if(isset($options['devices']) && is_array($options['devices']))
             $this->notSupportDevice = $options['devices'];
+        if(isset($options['converterOptions']) && is_array($options['converterOptions']))
+            $this->options = $options['converterOptions'];
+        if(isset($options['debug']) && (!!$options['debug']))
+            $this->debug = $options['debug'];
     }
 
     /**
@@ -113,18 +119,26 @@ class WebPParseAndConvert
                         && strpos(strtolower($img_src_abs), '.png') === false
                         && mime_content_type($img_src_abs) === 'image/png') continue;
 
-                    if (WebPConvert::convert(
-                        $img_src_abs,
-                        $destination,
-                        $options = [
-//                                'png' => ['converters' => ['imagick']]
-                        ]
-//                            new \WebPConvert\Loggers\EchoLogger() // Логгер конвертера
-                    )) {
-                        $img_dest = $img_src_rel . '.webp';
+                    $isConvert = false;
+                    if($this->options && $this->debug){
+                        if (WebPConvert::convert($img_src_abs, $destination, $this->options, new \WebPConvert\Loggers\EchoLogger())) {
+                            $isConvert = true;
+                        }
+                    }elseif($this->options){
+                        if (WebPConvert::convert($img_src_abs, $destination, $this->options)) {
+                            $isConvert = true;
+                        }
+                    }elseif($this->debug){
+                        if (WebPConvert::convert($img_src_abs, $destination, array(), new \WebPConvert\Loggers\EchoLogger())) {
+                            $isConvert = true;
+                        }
                     } else {
-                        $img_dest = $img_src_rel;
+                        if (WebPConvert::convert($img_src_abs, $destination))
+                            $isConvert = true;
                     }
+
+                    if($isConvert) $img_dest = $img_src_rel . '.webp';
+                    else $img_dest = $img_src_rel;
                 } else {
                     $img_dest = $img_src_rel . '.webp';
                 }
