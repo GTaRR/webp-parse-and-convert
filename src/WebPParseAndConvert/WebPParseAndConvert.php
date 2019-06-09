@@ -121,17 +121,14 @@ class WebPParseAndConvert
 
                     $isConvert = false;
                     if($this->options && $this->debug){
-                        if (WebPConvert::convert($img_src_abs, $destination, $this->options, new \WebPConvert\Loggers\EchoLogger())) {
+                        if (WebPConvert::convert($img_src_abs, $destination, $this->options, new \WebPConvert\Loggers\EchoLogger()))
                             $isConvert = true;
-                        }
                     }elseif($this->options){
-                        if (WebPConvert::convert($img_src_abs, $destination, $this->options)) {
+                        if (WebPConvert::convert($img_src_abs, $destination, $this->options))
                             $isConvert = true;
-                        }
                     }elseif($this->debug){
-                        if (WebPConvert::convert($img_src_abs, $destination, array(), new \WebPConvert\Loggers\EchoLogger())) {
+                        if (WebPConvert::convert($img_src_abs, $destination, array(), new \WebPConvert\Loggers\EchoLogger()))
                             $isConvert = true;
-                        }
                     } else {
                         if (WebPConvert::convert($img_src_abs, $destination))
                             $isConvert = true;
