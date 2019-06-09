@@ -140,12 +140,10 @@ class WebPParseAndConvert
      */
     public function execute()
     {
-        if(!isset($this->content) || empty($this->content)) return false;
-
         $userAgent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
         foreach ($this->notSupportDevice as $val) {
-            if (stripos($userAgent, $val) !== false) return false;
+            if (stripos($userAgent, $val) !== false) return $this->content;
         }
 
         $this->images = array();
