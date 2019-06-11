@@ -26,7 +26,7 @@ $options = [
    "formats" => ['.jpg', '.jpeg', '.png'],
    "patterns" => [
       [
-         'pattern' => '/<img[^>]+src=("[^"]*")[^>]+>/i',
+         'pattern' => '/<img[^>]+src=("[^"]*")[^>]*>/i',
          'exclude' => ['"', './']
       ],
       [
@@ -34,7 +34,9 @@ $options = [
          'exclude' => ["'", "./"]
       ],
    ],
-   "devices" => ['iphone', 'ipod', 'ipad', 'macintosh', 'mac os', 'Edge', 'MSIE']
+   "devices" => ['iphone', 'ipod', 'ipad', 'macintosh', 'mac os', 'Edge', 'MSIE'],
+   "converterOptions" => [],
+   "debug" => false
 ];
 
 $converter = new WebPParseAndConvert($content, $rootDir, $options); 
@@ -47,6 +49,8 @@ $converter = new WebPParseAndConvert($content, $rootDir, $options);
 'patterns' => [['pattern' => '...']] | String | 1. Само регулярное выражение
 'patterns' => [['exclude'  => []]] | Array | 2. Подстроки, которые нужно исключить из обработки после нахождения строки по регулярному выражению, например, кавычки
 'devices' | Array | Список устройств, для которых по User-agent будут выводиться оригинальные изображения в форматах jpg, jpeg, png
+'converterOptions' | Array | Опции, передаваемые в вызов `WebPConvert::convert()` библиотеки [WebP Convert](https://github.com/rosell-dk/webp-convert)
+'debug' | Boolean | Использование встроенного логгера библиотеки [WebP Convert](https://github.com/rosell-dk/webp-convert)
 
 ## Решение проблем
 При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опцию `'formats'` передать только `['.jpg.', '.jpeg']`
