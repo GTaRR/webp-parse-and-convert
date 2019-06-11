@@ -11,18 +11,18 @@ class WebPParseAndConvert
     private $rootDir;
     private $images;
     private $formats = array(
-        '.jpg',
-        '.jpeg',
-        '.png'
+        'jpg',
+        'jpeg',
+        'png'
     );
     private $patterns = array(
         array(
             'pattern' => '/<img[^>]+src=("[^"]*")[^>]*>/i',
-            'exclude' => array('"','./')
+            'exclude' => array('"', './')
         ),
         array(
             'pattern' => '/background-image:.+url\(([^"]+)\)/i',
-            'exclude' => array("'","./")
+            'exclude' => array("'", "./")
         ),
 //        array(
 //            'pattern' => '/background:.+url\(([^"]+)\)/i',
@@ -53,20 +53,20 @@ class WebPParseAndConvert
      */
     public function __construct($content, $rootDir, $options = array())
     {
-        if(!isset($content) || empty($content)) return false;
+        if (!isset($content) || empty($content)) return false;
 
         $this->content = $content;
         $this->rootDir = ($rootDir) ? $rootDir : $_SERVER['DOCUMENT_ROOT'];
 
-        if(isset($options['formats']) && is_array($options['formats']))
+        if (isset($options['formats']) && is_array($options['formats']))
             $this->formats = $options['formats'];
-        if(isset($options['patterns']) && is_array($options['patterns']))
+        if (isset($options['patterns']) && is_array($options['patterns']))
             $this->patterns = $options['patterns'];
-        if(isset($options['devices']) && is_array($options['devices']))
+        if (isset($options['devices']) && is_array($options['devices']))
             $this->notSupportDevice = $options['devices'];
-        if(isset($options['converterOptions']) && is_array($options['converterOptions']))
+        if (isset($options['converterOptions']) && is_array($options['converterOptions']))
             $this->options = $options['converterOptions'];
-        if(isset($options['debug']) && (!!$options['debug']))
+        if (isset($options['debug']) && (!!$options['debug']))
             $this->debug = $options['debug'];
 
         return true;
@@ -98,27 +98,27 @@ class WebPParseAndConvert
     private function parseImgByPattern($pattern, $content, $exclude = array())
     {
         $images = array();
-        
+
         preg_match_all($pattern, $content, $result);
-        
+
         if (count($result)) {
             foreach ($result[1] as $img) {
-                if(is_array($exclude) && count($exclude) > 0) {
+                if (is_array($exclude) && count($exclude) > 0) {
                     $exclude[] = $this->getProtocolAndHostName();
-                    
+
                     foreach ($exclude as $search){
                         $img = str_replace($search, "", $img);
                     }
                 }
-                
-                $standartFormats = array('.jpg','.jpeg','.png');
-                foreach ($standartFormats as $format) {
-                    if (substr($img, strlen($img) - strlen($format)) == $format)
+
+                $standardFormats = array('jpg','jpeg','png');
+                foreach ($standardFormats as $format) {
+                    if (pathinfo(strtolower($img), PATHINFO_EXTENSION) == $format)
                         $images[] = $img;
                 }
             }
         }
-        
+
         return $images;
     }
 
@@ -134,50 +134,59 @@ class WebPParseAndConvert
     {
         foreach ($images as $img_src_rel)
         {
-            if (($img_src_rel) && (file_exists($this->rootDir . $img_src_rel)))
+            if ((!$img_src_rel) || (!file_exists($this->rootDir . $img_src_rel)))
+                continue;
+
+            if (!file_exists($this->rootDir . $img_src_rel . '.webp'))
             {
-                if (!file_exists($this->rootDir . $img_src_rel . '.webp'))
-                {
-                    $img_src_abs = $this->rootDir . $img_src_rel;
-                    $destination = $this->rootDir . $img_src_rel . '.webp';
+                $img_src_abs = $this->rootDir . $img_src_rel;
+                $destination = $this->rootDir . $img_src_rel . '.webp';
 
-                    // во избежании ошибок обработки png картинок с расширениями .jpg/.jpeg
-                    if (!in_array('.png', $this->formats)
-                        && strpos(strtolower($img_src_abs), '.png') === false
-                        && mime_content_type($img_src_abs) === 'image/png') continue;
+                // во избежании ошибок обработки png картинок с расширениями .jpg/.jpeg
+                if (!in_array('.png', $this->formats)
+                    && strpos(strtolower($img_src_abs), '.png') === false
+                    && mime_content_type($img_src_abs) === 'image/png') continue;
 
-                    $isSupportFormat = false;
-                    foreach ($this->formats as $format) {
-                        if (substr($img_src_rel, strlen($img_src_rel) - strlen($format)) == $format)
-                            $isSupportFormat = true;
-                    }
-                    if(!$isSupportFormat) continue;
+                // 2 проверки на формат для возможности подстановки загрженного вручную
+                // WebP избражения из PNG в проверке на наличие файла
+                $isSupportFormat = false;
+                foreach ($this->formats as $format) {
+                    if (pathinfo(strtolower($img_src_rel), PATHINFO_EXTENSION) == $format)
+                        $isSupportFormat = true;
+                }
+                if (!$isSupportFormat) continue;
 
-                    $isConvert = false;
-                    if($this->options && $this->debug){
+                $isConvert = false;
+                try {
+                    if ($this->options && $this->debug) {
                         if (WebPConvert::convert($img_src_abs, $destination, $this->options, new EchoLogger()))
                             $isConvert = true;
-                    }elseif($this->options){
+                    } elseif ($this->options) {
                         if (WebPConvert::convert($img_src_abs, $destination, $this->options))
                             $isConvert = true;
-                    }elseif($this->debug){
+                    } elseif ($this->debug) {
                         if (WebPConvert::convert($img_src_abs, $destination, array(), new EchoLogger()))
                             $isConvert = true;
                     } else {
                         if (WebPConvert::convert($img_src_abs, $destination))
                             $isConvert = true;
                     }
-
-                    if($isConvert) $img_dest = $img_src_rel . '.webp';
-                    else $img_dest = $img_src_rel;
-                } else {
-                    $img_dest = $img_src_rel . '.webp';
+                } catch (\WebPConvert\Converters\Exceptions\ConversionDeclinedException $e) {
+                    continue;
                 }
 
-                $content = str_replace($img_src_rel, $img_dest, $content);
+                if ($isConvert) {
+                    $img_dest = $img_src_rel . '.webp';
+                } else {
+                    $img_dest = $img_src_rel;
+                }
+            } else {
+                $img_dest = $img_src_rel . '.webp';
             }
+
+            $content = str_replace($img_src_rel, $img_dest, $content);
         }
-        
+
         return $content;
     }
 
@@ -194,7 +203,7 @@ class WebPParseAndConvert
 
         $this->images = array();
 
-        if(count($this->patterns) > 0) {
+        if (count($this->patterns) > 0) {
             foreach ($this->patterns as $pattern) {
                 $this->images = array_merge(
                     $this->images,
