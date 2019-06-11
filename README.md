@@ -53,7 +53,8 @@ $converter = new WebPParseAndConvert($content, $rootDir, $options);
 'debug' | Boolean | Использование встроенного логгера библиотеки [WebP Convert](https://github.com/rosell-dk/webp-convert)
 
 ## Решение проблем
-При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опцию `'formats'` передать только `['jpg.', 'jpeg']`. **С версии 0.1.0 это исключение перехватывается**
+При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опцию `'formats'` передать только `['jpg.', 'jpeg']`. 
+**С версии 0.1.0 это исключение перехватывается**
 ## Примеры для CMS
 * [1С-Битрикс](https://github.com/GTaRR/WebPParseAndConvert/wiki/1C-Bitrix)
 * [ModX](https://github.com/GTaRR/WebPParseAndConvert/wiki/ModX)
