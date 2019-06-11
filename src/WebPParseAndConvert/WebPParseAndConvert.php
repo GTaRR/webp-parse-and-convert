@@ -3,6 +3,7 @@
 namespace WebPParseAndConvert;
 
 use WebPConvert\WebPConvert;
+use WebPConvert\Loggers\EchoLogger;
 
 class WebPParseAndConvert
 {
@@ -45,16 +46,18 @@ class WebPParseAndConvert
     private $debug = false;
 
     /**
-     * @param   string      $content - HTML загружаемой страницы
-     * @param   string      $rootDir - Корень сайта в файловой системе
-     * @param   array       $options - Дополнительные опции
-     * @return  string      &$content
+     * @param   string  $content - HTML загружаемой страницы
+     * @param   string  $rootDir - Корень сайта в файловой системе
+     * @param   array   $options - Дополнительные опции
+     * @return  string  &$content
      */
     public function __construct($content, $rootDir, $options = array())
     {
         if(!isset($content) || empty($content)) return false;
+
         $this->content = $content;
         $this->rootDir = ($rootDir) ? $rootDir : $_SERVER['DOCUMENT_ROOT'];
+
         if(isset($options['formats']) && is_array($options['formats']))
             $this->formats = $options['formats'];
         if(isset($options['patterns']) && is_array($options['patterns']))
@@ -65,33 +68,57 @@ class WebPParseAndConvert
             $this->options = $options['converterOptions'];
         if(isset($options['debug']) && (!!$options['debug']))
             $this->debug = $options['debug'];
+
+        return true;
+    }
+
+    /**
+     * Получение адреса корня сайта
+     *
+     * @return  string
+     */
+    private function getProtocolAndHostName(){
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+            $protocol = 'https://';
+        } else {
+            $protocol = 'http://';
+        }
+
+        return $protocol . $_SERVER['HTTP_HOST'];
     }
 
     /**
      * Парсинг изображений на странице
      *
-     * @param   string      $pattern - Регулярное выражение для поиска изображений
-     * @param   string      $content - HTML загружаемой страницы
-     * @param   array       $exclude - Исключаемые строки
-     * @return  array       $images  - Массив адресов изображений
+     * @param   string  $pattern - Регулярное выражение для поиска изображений
+     * @param   string  $content - HTML загружаемой страницы
+     * @param   array   $exclude - Исключаемые строки
+     * @return  array   $images  - Массив адресов изображений
      */
     private function parseImgByPattern($pattern, $content, $exclude = array())
     {
         $images = array();
+        
         preg_match_all($pattern, $content, $result);
+        
         if (count($result)) {
             foreach ($result[1] as $img) {
                 if(is_array($exclude) && count($exclude) > 0) {
+                    $exclude[] = $this->getProtocolAndHostName();
+                    
                     foreach ($exclude as $search){
                         $img = str_replace($search, "", $img);
                     }
                 }
-                foreach ($this->formats as $format) {
-                    if ((strpos(strtolower($img), $format) !== false))
+                
+                $standartFormats = array('.jpg','.jpeg','.png');
+                foreach ($standartFormats as $format) {
+                    if (substr($img, strlen($img) - strlen($format)) == $format)
                         $images[] = $img;
                 }
             }
         }
+        
         return $images;
     }
 
@@ -99,9 +126,9 @@ class WebPParseAndConvert
      * Конвертирование массива изображений в WebP по адресу [path/name.*].webp
      * и сохранением исходных файлов [path/name.*]
      *
-     * @param   string      $content - HTML загружаемой страницы
-     * @param   array       $images  - Массив адресов изображений
-     * @return  string      $content
+     * @param   string  $content - HTML загружаемой страницы
+     * @param   array   $images  - Массив адресов изображений
+     * @return  string  $content
      */
     private function convertImages($content, $images)
     {
@@ -119,15 +146,22 @@ class WebPParseAndConvert
                         && strpos(strtolower($img_src_abs), '.png') === false
                         && mime_content_type($img_src_abs) === 'image/png') continue;
 
+                    $isSupportFormat = false;
+                    foreach ($this->formats as $format) {
+                        if (substr($img_src_rel, strlen($img_src_rel) - strlen($format)) == $format)
+                            $isSupportFormat = true;
+                    }
+                    if(!$isSupportFormat) continue;
+
                     $isConvert = false;
                     if($this->options && $this->debug){
-                        if (WebPConvert::convert($img_src_abs, $destination, $this->options, new \WebPConvert\Loggers\EchoLogger()))
+                        if (WebPConvert::convert($img_src_abs, $destination, $this->options, new EchoLogger()))
                             $isConvert = true;
                     }elseif($this->options){
                         if (WebPConvert::convert($img_src_abs, $destination, $this->options))
                             $isConvert = true;
                     }elseif($this->debug){
-                        if (WebPConvert::convert($img_src_abs, $destination, array(), new \WebPConvert\Loggers\EchoLogger()))
+                        if (WebPConvert::convert($img_src_abs, $destination, array(), new EchoLogger()))
                             $isConvert = true;
                     } else {
                         if (WebPConvert::convert($img_src_abs, $destination))
@@ -143,11 +177,12 @@ class WebPParseAndConvert
                 $content = str_replace($img_src_rel, $img_dest, $content);
             }
         }
+        
         return $content;
     }
 
     /**
-     * @return  string      $content - Итоговый контент страницы
+     * @return  string  $content - Итоговый контент страницы
      */
     public function execute()
     {
