@@ -40,7 +40,8 @@ class WebPParseAndConvert
         'macintosh',
         'mac os',
         'Edge',
-        'MSIE'
+        'MSIE',
+        'Trident'
     );
     private $options = false;
     private $debug = false;
