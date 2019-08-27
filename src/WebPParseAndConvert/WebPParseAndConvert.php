@@ -21,7 +21,7 @@ class WebPParseAndConvert
             'exclude' => array('"', './')
         ),
         array(
-            'pattern' => '/background-image:.+url\(([^"]+)\)/i',
+            'pattern' => '/background-image:.*url\(([^"]+)\)/i',
             'exclude' => array("'", "./")
         ),
 //        array(
