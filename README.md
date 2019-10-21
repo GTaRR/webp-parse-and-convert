@@ -8,7 +8,7 @@ var_dump(function_exists('imagewebp')); // bool(true) - можно
 Если на сервере нет `Imagick`, то конвертирование работать будет, но качество получившегося изображения не будет соответствовать качеству оригинального изображения.
 
 ## Установка через Composer
-```php
+```bash
 composer require gtarr/webp-parse-and-convert
 ```
 ## Установка без Composer
