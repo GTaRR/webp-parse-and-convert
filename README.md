@@ -1,5 +1,11 @@
 # WebPParseAndConvert
 Парсинг HTML страницы и конвертирование изображений в WebP через библиотеку [WebP Convert](https://github.com/rosell-dk/webp-convert).
+
+## Проверка возможности конвертирования в WebP на сервере
+```php
+var_dump(function_exists('imagewebp'));
+```
+
 ## Установка через Composer
 ```php
 composer require gtarr/webp-parse-and-convert
