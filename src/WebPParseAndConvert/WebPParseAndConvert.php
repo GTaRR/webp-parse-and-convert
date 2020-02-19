@@ -138,51 +138,53 @@ class WebPParseAndConvert
             if ((!$img_src_rel) || (!file_exists($this->rootDir . $img_src_rel)))
                 continue;
 
-            if (!file_exists($this->rootDir . $img_src_rel . '.webp'))
+            if (file_exists($this->rootDir . $img_src_rel . '.webp'))
             {
-                $img_src_abs = $this->rootDir . $img_src_rel;
-                $destination = $this->rootDir . $img_src_rel . '.webp';
-
-                // во избежании ошибок обработки png картинок с расширениями .jpg/.jpeg
-                if (!in_array('.png', $this->formats)
-                    && strpos(strtolower($img_src_abs), '.png') === false
-                    && mime_content_type($img_src_abs) === 'image/png') continue;
-
-                // 2 проверки на формат для возможности подстановки загрженного вручную
-                // WebP избражения из PNG в проверке на наличие файла
-                $isSupportFormat = false;
-                foreach ($this->formats as $format) {
-                    if (pathinfo(strtolower($img_src_rel), PATHINFO_EXTENSION) == $format)
-                        $isSupportFormat = true;
-                }
-                if (!$isSupportFormat) continue;
-
-                $isConvert = false;
-                try {
-                    if ($this->options && $this->debug) {
-                        if (WebPConvert::convert($img_src_abs, $destination, $this->options, new EchoLogger()))
-                            $isConvert = true;
-                    } elseif ($this->options) {
-                        if (WebPConvert::convert($img_src_abs, $destination, $this->options))
-                            $isConvert = true;
-                    } elseif ($this->debug) {
-                        if (WebPConvert::convert($img_src_abs, $destination, array(), new EchoLogger()))
-                            $isConvert = true;
-                    } else {
-                        if (WebPConvert::convert($img_src_abs, $destination))
-                            $isConvert = true;
-                    }
-                } catch (\WebPConvert\Converters\Exceptions\ConversionDeclinedException $e) {
-                    continue;
-                }
-
-                if ($isConvert) {
-                    $img_dest = $img_src_rel . '.webp';
-                } else {
-                    $img_dest = $img_src_rel;
-                }
-            } else {
                 $img_dest = $img_src_rel . '.webp';
+                $content = str_replace($img_src_rel, $img_dest, $content);
+                continue;
+            }
+            
+            $img_src_abs = $this->rootDir . $img_src_rel;
+            $destination = $this->rootDir . $img_src_rel . '.webp';
+
+            // во избежании ошибок обработки png картинок с расширениями .jpg/.jpeg
+            if (!in_array('.png', $this->formats)
+                && strpos(strtolower($img_src_abs), '.png') === false
+                && mime_content_type($img_src_abs) === 'image/png') continue;
+
+            // 2 проверки на формат для возможности подстановки загрженного вручную
+            // WebP избражения из PNG в проверке на наличие файла
+            $isSupportFormat = false;
+            foreach ($this->formats as $format) {
+                if (pathinfo(strtolower($img_src_rel), PATHINFO_EXTENSION) == $format)
+                    $isSupportFormat = true;
+            }
+            if (!$isSupportFormat) continue;
+
+            $isConvert = false;
+            try {
+                if ($this->options && $this->debug) {
+                    if (WebPConvert::convert($img_src_abs, $destination, $this->options, new EchoLogger()))
+                        $isConvert = true;
+                } elseif ($this->options) {
+                    if (WebPConvert::convert($img_src_abs, $destination, $this->options))
+                        $isConvert = true;
+                } elseif ($this->debug) {
+                    if (WebPConvert::convert($img_src_abs, $destination, array(), new EchoLogger()))
+                        $isConvert = true;
+                } else {
+                    if (WebPConvert::convert($img_src_abs, $destination))
+                        $isConvert = true;
+                }
+            } catch (\WebPConvert\Converters\Exceptions\ConversionDeclinedException $e) {
+                continue;
+            }
+
+            if ($isConvert) {
+                $img_dest = $img_src_rel . '.webp';
+            } else {
+                $img_dest = $img_src_rel;
             }
 
             $content = str_replace($img_src_rel, $img_dest, $content);
