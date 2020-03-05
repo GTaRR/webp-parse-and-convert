@@ -60,8 +60,8 @@ $converter = new WebPParseAndConvert($content, $rootDir, $options);
 'debug' | Boolean | Использование встроенного логгера библиотеки [WebP Convert](https://github.com/rosell-dk/webp-convert)
 'useApi' | Boolean | Использования для конвертирования внешнего сервиса основанного на [webp-convert-cloud-service](https://github.com/rosell-dk/webp-convert-cloud-service)
 'api' | Array | Параметры для подключения к внешнему сервису
-'api' => ['key' => '...'] | String | API ключ
-'api' => ['url' => '...'] | String | URL внешнего сервиса
+'api' => ['key' => '...'] | String | API ключ внешнего облачного сервиса
+'api' => ['url' => '...'] | String | URL внешнего облачного сервиса
 
 ## Решение проблем
 При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опцию `'formats'` передать только `['jpg', 'jpeg']`.  
@@ -70,3 +70,15 @@ $converter = new WebPParseAndConvert($content, $rootDir, $options);
 * [1С-Битрикс](https://github.com/GTaRR/WebPParseAndConvert/wiki/1C-Bitrix)
 * [ModX](https://github.com/GTaRR/WebPParseAndConvert/wiki/ModX)
 * [Без CMS](https://github.com/GTaRR/WebPParseAndConvert/wiki/%D0%91%D0%B5%D0%B7-CMS)
+## Если нет поддержки WebP на сервере сайта
+Можно использовать [webp-convert-cloud-service](https://github.com/rosell-dk/webp-convert-cloud-service). Создать на другом сервере, на котором есть поддержка конвертирования в WebP облачный сервис и обращаться к нему по API. Для работы такого варианта необходимо в `$options` передать два параметра `useApi` и `api`:
+```php
+$options = array(
+    'useApi' => true,
+    'api' => array(
+       'key' => 'some API key',
+       'url' => 'http://example.com/wpc.php'
+    )
+);
+```
+В таком случае конвертирование через облачный сервис будет происходить только при указании в URL страницы GET параметра '?webpconvert=Y'.
