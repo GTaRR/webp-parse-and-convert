@@ -269,9 +269,11 @@ class WebPParseAndConvert
 
             curl_close($ch);
         } catch (\Exception $e) {
+
             if ($this->debug) echo $e->getMessage();
             if ($this->debug) echo $e->getTrace();
             return false;
+            
         }
     }
 
