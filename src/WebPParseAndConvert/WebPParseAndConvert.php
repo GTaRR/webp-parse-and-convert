@@ -75,8 +75,7 @@ class WebPParseAndConvert
         if (isset($options['useApi']) && (!!$options['useApi'])
             && isset($options['api']) && is_array($options['api'])
             && isset($options['api']['key']) && $options['api']['key'] !== ''
-            && isset($options['api']['url']) && $options['api']['url'] !== ''
-            && isset($_REQUEST['webpconvert']) && $_REQUEST['webpconvert'] !== '') {
+            && isset($options['api']['url']) && $options['api']['url'] !== '') {
             $this->apiKey = $options['api']['key'];
             $this->apiUrl = $options['api']['url'];
             $this->useApi = true;
@@ -235,39 +234,45 @@ class WebPParseAndConvert
         $apiKeyCrypted = substr(crypt($this->apiKey, '$2y$10$' . $salt . '$'), 28);
         $destination = $img_src . '.webp';
 
-        $ch = curl_init();
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $this->apiUrl,
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => [
-                'action' => 'convert',
-                'file' => curl_file_create($img_src),
-                'salt' => $salt,
-                'api-key-crypted' => $apiKeyCrypted,
-                'options' => json_encode(array(
-                    'quality' => 'auto',
-                ))
-            ],
-            CURLOPT_BINARYTRANSFER => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HEADER => false,
-            CURLOPT_SSL_VERIFYPEER => false
-        ]);
+        try {
+            $ch = curl_init();
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $this->apiUrl,
+                CURLOPT_POST => 1,
+                CURLOPT_POSTFIELDS => [
+                    'action' => 'convert',
+                    'file' => curl_file_create($img_src),
+                    'salt' => $salt,
+                    'api-key-crypted' => $apiKeyCrypted,
+                    'options' => json_encode(array(
+                        'quality' => 'auto',
+                    ))
+                ],
+                CURLOPT_BINARYTRANSFER => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HEADER => false,
+                CURLOPT_SSL_VERIFYPEER => false
+            ]);
 
-        $response = curl_exec($ch);
+            $response = curl_exec($ch);
 
-        // The WPC cloud service either returns an image or an error message
-        // Verify that we got an image back.
-        if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'application/octet-stream') {
-            $success = file_put_contents($destination, $response);
-            if ($success) return true;
-        } else {
-            // show error response
-            if ($this->debug) echo $response;
+            // The WPC cloud service either returns an image or an error message
+            // Verify that we got an image back.
+            if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'application/octet-stream') {
+                $success = file_put_contents($destination, $response);
+                if ($success) return true;
+            } else {
+                // show error response
+                if ($this->debug) echo $response;
+                return false;
+            }
+
+            curl_close($ch);
+        } catch (\Exception $e) {
+            if ($this->debug) echo $e->getMessage();
+            if ($this->debug) echo $e->getTrace();
             return false;
         }
-
-        curl_close($ch);
     }
 
     /**
