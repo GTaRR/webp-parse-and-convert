@@ -73,7 +73,7 @@ $converter = new WebPParseAndConvert($content, $rootDir, $options);
 * [ModX](https://github.com/GTaRR/WebPParseAndConvert/wiki/ModX)
 * [Без CMS](https://github.com/GTaRR/WebPParseAndConvert/wiki/%D0%91%D0%B5%D0%B7-CMS)
 ## Если нет поддержки WebP на сервере сайта
-Можно использовать [webp-convert-cloud-service](https://github.com/rosell-dk/webp-convert-cloud-service). Создать на другом сервере, на котором есть поддержка конвертирования в WebP облачный сервис и обращаться к нему по API. Для работы такого варианта необходимо в `$options` передать два параметра `useApi` и `api`:
+Можно использовать cоздать на другом сервере, на котором есть поддержка конвертирования в WebP, облачный сервис [webp-convert-cloud-service](https://github.com/rosell-dk/webp-convert-cloud-service) и обращаться к нему по API. Для работы такого варианта необходимо в `$options` передать два параметра `useApi` и `api`:
 ```php
 $options = array(
     'useApi' => true,
