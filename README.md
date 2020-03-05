@@ -58,6 +58,10 @@ $converter = new WebPParseAndConvert($content, $rootDir, $options);
 'devices' | Array | Список устройств, для которых по User-agent будут выводиться оригинальные изображения в форматах jpg, jpeg, png
 'converterOptions' | Array | Опции, передаваемые в вызов `WebPConvert::convert()` библиотеки [WebP Convert](https://github.com/rosell-dk/webp-convert)
 'debug' | Boolean | Использование встроенного логгера библиотеки [WebP Convert](https://github.com/rosell-dk/webp-convert)
+'useApi' | Boolean | Использования для конвертирования внешнего сервиса основанного на [webp-convert-cloud-service](https://github.com/rosell-dk/webp-convert-cloud-service)
+'api' | Array | Параметры для подключения к внешнему сервису
+'api' => ['key' => '...'] | String | API ключ
+'api' => ['url' => '...'] | String | URL внешнего сервиса
 
 ## Решение проблем
 При ошибке `PNG file skipped. GD is configured not to convert PNGs` необходимо отключить обработку PNG изображений, для этого нужно в опцию `'formats'` передать только `['jpg', 'jpeg']`.  

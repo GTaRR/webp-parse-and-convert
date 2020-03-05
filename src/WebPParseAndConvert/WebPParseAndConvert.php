@@ -45,6 +45,9 @@ class WebPParseAndConvert
     );
     private $options = false;
     private $debug = false;
+    private $useApi = false;
+    private $apiKey;
+    private $apiUrl;
 
     /**
      * @param   string  $content - HTML загружаемой страницы
@@ -69,6 +72,15 @@ class WebPParseAndConvert
             $this->options = $options['converterOptions'];
         if (isset($options['debug']) && (!!$options['debug']))
             $this->debug = $options['debug'];
+        if (isset($options['useApi']) && (!!$options['useApi'])
+            && isset($options['api']) && is_array($options['api'])
+            && isset($options['api']['key']) && $options['api']['key'] !== ''
+            && isset($options['api']['url']) && $options['api']['url'] !== ''
+            && isset($_REQUEST['webpconvert']) && $_REQUEST['webpconvert'] !== '') {
+            $this->apiKey = $options['api']['key'];
+            $this->apiUrl = $options['api']['url'];
+            $this->useApi = true;
+        }
 
         return true;
     }
@@ -163,22 +175,31 @@ class WebPParseAndConvert
             if (!$isSupportFormat) continue;
 
             $isConvert = false;
-            try {
-                if ($this->options && $this->debug) {
-                    if (WebPConvert::convert($img_src_abs, $destination, $this->options, new EchoLogger()))
-                        $isConvert = true;
-                } elseif ($this->options) {
-                    if (WebPConvert::convert($img_src_abs, $destination, $this->options))
-                        $isConvert = true;
-                } elseif ($this->debug) {
-                    if (WebPConvert::convert($img_src_abs, $destination, array(), new EchoLogger()))
-                        $isConvert = true;
-                } else {
-                    if (WebPConvert::convert($img_src_abs, $destination))
-                        $isConvert = true;
+
+            if ($this->useApi) {
+
+                $isConvert = $this->convertByApi($img_src_abs);
+
+            } else {
+
+                try {
+                    if ($this->options && $this->debug) {
+                        if (WebPConvert::convert($img_src_abs, $destination, $this->options, new EchoLogger()))
+                            $isConvert = true;
+                    } elseif ($this->options) {
+                        if (WebPConvert::convert($img_src_abs, $destination, $this->options))
+                            $isConvert = true;
+                    } elseif ($this->debug) {
+                        if (WebPConvert::convert($img_src_abs, $destination, array(), new EchoLogger()))
+                            $isConvert = true;
+                    } else {
+                        if (WebPConvert::convert($img_src_abs, $destination))
+                            $isConvert = true;
+                    }
+                } catch (\WebPConvert\Converters\Exceptions\ConversionDeclinedException $e) {
+                    continue;
                 }
-            } catch (\WebPConvert\Converters\Exceptions\ConversionDeclinedException $e) {
-                continue;
+
             }
 
             if ($isConvert) {
@@ -191,6 +212,62 @@ class WebPParseAndConvert
         }
 
         return $content;
+    }
+
+    private function createRandomSaltForBlowfish() {
+        $salt = '';
+        $validCharsForSalt = array_merge(
+            range('A', 'Z'),
+            range('a', 'z'),
+            range('0', '9'),
+            ['.', '/']
+        );
+
+        for ($i=0; $i<22; $i++) {
+            $salt .= $validCharsForSalt[array_rand($validCharsForSalt)];
+        }
+        return $salt;
+    }
+
+    private function convertByApi($img_src) {
+        $salt = $this->createRandomSaltForBlowfish();
+        // Strip off the first 28 characters (the first 6 are always "$2y$10$". The next 22 is the salt)
+        $apiKeyCrypted = substr(crypt($this->apiKey, '$2y$10$' . $salt . '$'), 28);
+        $destination = $img_src . '.webp';
+
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $this->apiUrl,
+            CURLOPT_POST => 1,
+            CURLOPT_POSTFIELDS => [
+                'action' => 'convert',
+                'file' => curl_file_create($img_src),
+                'salt' => $salt,
+                'api-key-crypted' => $apiKeyCrypted,
+                'options' => json_encode(array(
+                    'quality' => 'auto',
+                ))
+            ],
+            CURLOPT_BINARYTRANSFER => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => false,
+            CURLOPT_SSL_VERIFYPEER => false
+        ]);
+
+        $response = curl_exec($ch);
+
+        // The WPC cloud service either returns an image or an error message
+        // Verify that we got an image back.
+        if (curl_getinfo($ch, CURLINFO_CONTENT_TYPE) == 'application/octet-stream') {
+            $success = file_put_contents($destination, $response);
+            if ($success) return true;
+        } else {
+            // show error response
+            if ($this->debug) echo $response;
+            return false;
+        }
+
+        curl_close($ch);
     }
 
     /**
