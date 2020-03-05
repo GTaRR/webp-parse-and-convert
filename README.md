@@ -43,7 +43,9 @@ $options = [
    ],
    "devices" => ['iphone', 'ipod', 'ipad', 'macintosh', 'mac os', 'Edge', 'MSIE', 'Trident'],
    "converterOptions" => [],
-   "debug" => false
+   "debug" => false,
+   "useApi" => false,
+   "api" => []
 ];
 
 $converter = new WebPParseAndConvert($content, $rootDir, $options); 
