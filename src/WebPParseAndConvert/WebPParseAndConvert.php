@@ -24,14 +24,14 @@ class WebPParseAndConvert
             'pattern' => '/background-image:.*url\(([^"]+)\)/i',
             'exclude' => array("'", "./")
         ),
-//        array(
-//            'pattern' => '/background:.+url\(([^"]+)\)/i',
-//            'exclude' => array("'","./")
-//        ),
-//        array(
-//            'pattern' => '/data-src=\"([^"]+)\"/i',
-//            'exclude' => array("'","./")
-//        ),
+        array(
+            'pattern' => '/background:.+url\(([^"]+)\)/i',
+            'exclude' => array("'","./")
+        ),
+        array(
+            'pattern' => '/data-src=\"([^"]+)\"/i',
+            'exclude' => array("'","./")
+        ),
     );
     private $notSupportDevice = array(
         'iphone',
@@ -55,12 +55,14 @@ class WebPParseAndConvert
      * @param   array   $options - Дополнительные опции
      * @return  string  &$content
      */
-    public function __construct($content, $rootDir, $options = array())
+    public function __construct($content, $rootDir = '', $options = array())
     {
         if (!isset($content) || empty($content)) return false;
 
         $this->content = $content;
         $this->rootDir = ($rootDir) ? $rootDir : $_SERVER['DOCUMENT_ROOT'];
+        if (substr($this->rootDir, -1, 1) === '/')
+            $this->rootDir = substr($this->rootDir, 0, (strlen($this->rootDir)-1));
 
         if (isset($options['formats']) && is_array($options['formats']))
             $this->formats = $options['formats'];
@@ -85,18 +87,31 @@ class WebPParseAndConvert
     }
 
     /**
-     * Получение адреса корня сайта
-     *
-     * @return  string
+     * @return  string  $content - Итоговый контент страницы
      */
-    private function getProtocolAndHostName(){
-        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-            $protocol = 'https://';
-        } else {
-            $protocol = 'http://';
-        }
+    public function execute()
+    {
+        $userAgent = strtolower($_SERVER['HTTP_USER_AGENT']);
 
-        return $protocol . $_SERVER['HTTP_HOST'];
+        foreach ($this->notSupportDevice as $val)
+            if (stripos($userAgent, $val) !== false && stripos($userAgent, 'LightHouse') === false)
+                return $this->content;
+
+        $this->images = array();
+
+        if (count($this->patterns) > 0)
+            foreach ($this->patterns as $pattern)
+                $this->images = array_merge(
+                    $this->images,
+                    $this->parseImgByPattern($pattern['pattern'], $this->content, $pattern['exclude'])
+                );
+
+        $this->images = array_unique($this->images);
+
+        if (count($this->images))
+            return $this->convertImages($this->content, $this->images);
+        else
+            return $this->content;
     }
 
     /**
@@ -116,18 +131,17 @@ class WebPParseAndConvert
         if (count($result)) {
             foreach ($result[1] as $img) {
                 if (is_array($exclude) && count($exclude) > 0) {
-                    $exclude[] = $this->getProtocolAndHostName();
+                    $exclude[] = 'http://' . $_SERVER['HTTP_HOST'];
+                    $exclude[] = 'https://' . $_SERVER['HTTP_HOST'];
 
-                    foreach ($exclude as $search){
+                    foreach ($exclude as $search)
                         $img = str_replace($search, "", $img);
-                    }
                 }
 
                 $standardFormats = array('jpg','jpeg','png');
-                foreach ($standardFormats as $format) {
+                foreach ($standardFormats as $format)
                     if (pathinfo(strtolower($img), PATHINFO_EXTENSION) == $format)
                         $images[] = $img;
-                }
             }
         }
 
@@ -146,31 +160,39 @@ class WebPParseAndConvert
     {
         foreach ($images as $img_src_rel)
         {
-            if ((!$img_src_rel) || (!file_exists($this->rootDir . $img_src_rel)))
+            $slash = ($img_src_rel[0] !== '/') ? '/' : '';
+            $img_src_abs = $this->rootDir . $slash . $img_src_rel;
+
+            if ((!$img_src_rel) || (!file_exists($img_src_abs)))
                 continue;
 
-            if (file_exists($this->rootDir . $img_src_rel . '.webp'))
+            $destination = $img_src_abs . '.webp';
+
+            $isWebPExists = file_exists($destination);
+            $isWebPNewerThenOriginal = filemtime($destination) >= filemtime($img_src_abs);
+
+            if ($isWebPExists && $isWebPNewerThenOriginal)
             {
-                $img_dest = $img_src_rel . '.webp';
+                $img_dest = $slash . $img_src_rel . '.webp';
                 $content = str_replace($img_src_rel, $img_dest, $content);
+
                 continue;
             }
-            
-            $img_src_abs = $this->rootDir . $img_src_rel;
-            $destination = $this->rootDir . $img_src_rel . '.webp';
 
             // во избежании ошибок обработки png картинок с расширениями .jpg/.jpeg
-            if (!in_array('.png', $this->formats)
+            if (
+                !in_array('.png', $this->formats)
                 && strpos(strtolower($img_src_abs), '.png') === false
-                && mime_content_type($img_src_abs) === 'image/png') continue;
+                && mime_content_type($img_src_abs) === 'image/png'
+            ) continue;
 
-            // 2 проверки на формат для возможности подстановки загрженного вручную
+            // 2 проверки на формат для возможности подстановки загруженного вручную
             // WebP избражения из PNG в проверке на наличие файла
             $isSupportFormat = false;
-            foreach ($this->formats as $format) {
+            foreach ($this->formats as $format)
                 if (pathinfo(strtolower($img_src_rel), PATHINFO_EXTENSION) == $format)
                     $isSupportFormat = true;
-            }
+
             if (!$isSupportFormat) continue;
 
             $isConvert = false;
@@ -196,15 +218,20 @@ class WebPParseAndConvert
                             $isConvert = true;
                     }
                 } catch (\WebPConvert\Converters\Exceptions\ConversionDeclinedException $e) {
+                    if ($this->debug) {
+                        echo $e->getMessage();
+                        echo $e->getTrace();
+                    }
+
                     continue;
                 }
 
             }
 
             if ($isConvert) {
-                $img_dest = $img_src_rel . '.webp';
+                $img_dest = $slash . $img_src_rel . '.webp';
             } else {
-                $img_dest = $img_src_rel;
+                $img_dest = $slash . $img_src_rel;
             }
 
             $content = str_replace($img_src_rel, $img_dest, $content);
@@ -213,21 +240,12 @@ class WebPParseAndConvert
         return $content;
     }
 
-    private function createRandomSaltForBlowfish() {
-        $salt = '';
-        $validCharsForSalt = array_merge(
-            range('A', 'Z'),
-            range('a', 'z'),
-            range('0', '9'),
-            ['.', '/']
-        );
-
-        for ($i=0; $i<22; $i++) {
-            $salt .= $validCharsForSalt[array_rand($validCharsForSalt)];
-        }
-        return $salt;
-    }
-
+    /**
+     * Конвертирование на стороне стороннего сервера
+     *
+     * @param   string  $img_src - Абсолютный адрес исходного изображения
+     * @return  boolean - Результат конвертирования
+     */
     private function convertByApi($img_src) {
         $salt = $this->createRandomSaltForBlowfish();
         // Strip off the first 28 characters (the first 6 are always "$2y$10$". The next 22 is the salt)
@@ -269,41 +287,29 @@ class WebPParseAndConvert
 
             curl_close($ch);
         } catch (\Exception $e) {
-
-            if ($this->debug) echo $e->getMessage();
-            if ($this->debug) echo $e->getTrace();
+            if ($this->debug) {
+                echo $e->getMessage();
+                echo $e->getTrace();
+            }
             return false;
-            
         }
     }
 
     /**
-     * @return  string  $content - Итоговый контент страницы
+     * @return  string  $salt
      */
-    public function execute()
-    {
-        $userAgent = strtolower($_SERVER['HTTP_USER_AGENT']);
+    private function createRandomSaltForBlowfish() {
+        $salt = '';
+        $validCharsForSalt = array_merge(
+            range('A', 'Z'),
+            range('a', 'z'),
+            range('0', '9'),
+            ['.', '/']
+        );
 
-        foreach ($this->notSupportDevice as $val) {
-            if (stripos($userAgent, $val) !== false) return $this->content;
+        for ($i=0; $i<22; $i++) {
+            $salt .= $validCharsForSalt[array_rand($validCharsForSalt)];
         }
-
-        $this->images = array();
-
-        if (count($this->patterns) > 0) {
-            foreach ($this->patterns as $pattern) {
-                $this->images = array_merge(
-                    $this->images,
-                    $this->parseImgByPattern($pattern['pattern'], $this->content, $pattern['exclude'])
-                );
-            }
-        }
-
-        $this->images = array_unique($this->images);
-
-        if (count($this->images))
-            return $this->convertImages($this->content, $this->images);
-        else
-            return $this->content;
+        return $salt;
     }
 }
