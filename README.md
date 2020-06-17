@@ -25,12 +25,14 @@ require $rootDir . '/vendor/autoload.php';
 
 use WebPParseAndConvert\WebPParseAndConvert;
 
-$converter = new WebPParseAndConvert($content, $rootDir);  
+$converter = new WebPParseAndConvert($content);  
 
 $content = $converter->execute();
 ```
 2. C доп. опциями (в примере представлены значения по умолчанию)
 ```php
+$rootDir = $_SERVER['DOCUMENT_ROOT'];
+
 $options = [
    "formats" => ['jpg', 'jpeg', 'png'],
    "patterns" => [
