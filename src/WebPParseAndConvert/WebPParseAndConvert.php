@@ -169,7 +169,8 @@ class WebPParseAndConvert
             $destination = $img_src_abs . '.webp';
 
             $isWebPExists = file_exists($destination);
-            $isWebPNewerThenOriginal = filemtime($destination) >= filemtime($img_src_abs);
+            $isWebPNewerThenOriginal = false;
+            if ($isWebPExists) $isWebPNewerThenOriginal = filemtime($destination) >= filemtime($img_src_abs);
 
             if ($isWebPExists && $isWebPNewerThenOriginal)
             {
@@ -179,15 +180,12 @@ class WebPParseAndConvert
                 continue;
             }
 
-            // во избежании ошибок обработки png картинок с расширениями .jpg/.jpeg
             if (
                 !in_array('.png', $this->formats)
                 && strpos(strtolower($img_src_abs), '.png') === false
                 && mime_content_type($img_src_abs) === 'image/png'
             ) continue;
 
-            // 2 проверки на формат для возможности подстановки загруженного вручную
-            // WebP избражения из PNG в проверке на наличие файла
             $isSupportFormat = false;
             foreach ($this->formats as $format)
                 if (pathinfo(strtolower($img_src_rel), PATHINFO_EXTENSION) == $format)
