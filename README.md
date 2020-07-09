@@ -1,4 +1,5 @@
 # WebPParseAndConvert
+![Packagist Downloads](https://img.shields.io/packagist/dm/gtarr/webp-parse-and-convert)
 Парсинг HTML страницы и конвертирование изображений в WebP через библиотеку [WebP Convert](https://github.com/rosell-dk/webp-convert).
 
 ## Проверка возможности конвертирования в WebP на сервере
