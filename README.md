@@ -1,4 +1,6 @@
 # WebPParseAndConvert
+![https://packagist.org/packages/gtarr/webp-parse-and-convert](https://img.shields.io/packagist/dm/gtarr/webp-parse-and-convert)
+![https://packagist.org/packages/gtarr/webp-parse-and-convert](https://img.shields.io/packagist/v/gtarr/webp-parse-and-convert)
 ![Packagist Downloads](https://img.shields.io/packagist/dm/gtarr/webp-parse-and-convert)
 ![Packagist Version](https://img.shields.io/packagist/v/gtarr/webp-parse-and-convert)
 
